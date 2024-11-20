@@ -10,6 +10,9 @@
 #include "cube.h"
 
 Cube **game_floor;
+Cube **game_wall;
+Cube **creeper;
+Cube **pig;
 Vec3 *cam;
 
 void initGL() {
@@ -31,6 +34,14 @@ void display() {
 	for (size_t i = 0; i < 25*50; i++) {
 		drawCubeC(game_floor[i]);
 	}
+
+	for (size_t i = 0; i < 25*15; i++) {
+		drawCubeC(game_wall[i]);
+	}
+
+	drawBird();
+
+	drawCreeper();
 
 	glutSwapBuffers();
 }
@@ -80,6 +91,31 @@ void timer() {
 	glutTimerFunc(16, timer, 0); // Re-register timer for roughly 60 FPS
 }
 
+void initBird() {
+	pig[0] = newCube(-15, 1.2, 0, 1.5, PINK);
+	pig[1] = newCube(-14.5, 2.2, 0, 0.5, PINK);
+
+}
+
+void drawBird() {
+	drawCubeC(pig[0]);
+	drawCubeC(pig[1]);
+}
+
+void initCreeper() {
+	for(int i = 0; i < 22; i += 2) {
+		creeper[i] = newCube(10, 1, -11+i, 1, GREEN);
+	}
+}
+
+void drawCreeper() {
+    for (int i = 0; i < 22; i += 2) {
+        if (creeper[i] != NULL) {
+            drawCubeC(creeper[i]);
+        }
+    }
+}
+
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -89,8 +125,9 @@ int main(int argc, char** argv) {
 	initGL();
 
 	cam = malloc(sizeof(Vec3));
+	cam->x = 0;
 	cam->y = 10;
-	cam->z = 20;
+	cam->z = 50;
 
 	game_floor = calloc(sizeof(Cube *), 25*50);
 
@@ -101,6 +138,22 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	game_wall = calloc(sizeof(Cube *), 25*15);	
+
+	for (int i = 0; i < 25; i++) {  // line
+		for (int j = 0; j < 15; j++) { // col
+			game_wall[i*15 + j] = newCube(0, j+1, i-13, 1, randomColor());
+		}
+	}
+
+	pig = calloc(sizeof(Cube *), 2);
+
+	initBird();
+
+	creeper = calloc(sizeof(Cube *), 22);
+
+	initCreeper();
+	
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
