@@ -2,71 +2,22 @@
 #include <GL/glut.h>
 #include <stdio.h>
 
+#define  vec3_impl
+#include "vec3.h"
 #define  color_impl
 #include "color.h"
+#define  cube_impl
+#include "cube.h"
 
-float angle = 0.0f;
+Cube *cube;
 
 void initGL() {
 	glEnable(GL_DEPTH_TEST);
 
-	printf("%f, %f, %f, %f\n", DARKGRAY.r, DARKGRAY.g, DARKGRAY.b, 1.0);
 	glClearColor(DARKGRAY.r, DARKGRAY.g, DARKGRAY.b, 1.0);
 }
 
-void drawCube(float x, float y, float z, float size, Color c) {
-	glTranslatef(x, y, z); // Move the cube
-	glScalef(size, size, size);
-	// glRotatef(angle, 1.0f, 0.0f, 0.0f);
-
-	glBegin(GL_QUADS);
-	// Front face (red)
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-
-	// Back face (green)
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-
-	// Top face (blue)
-	glColor(c);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-
-	// Bottom face (yellow)
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-
-	// Right face (magenta)
-	glColor(c);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-
-	// Left face (cyan)
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glEnd();
-}
-
 void display() {
-	static float z;
-	z += 0.1f;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
 	glLoadIdentity(); // Reset transformations
 
@@ -76,7 +27,7 @@ void display() {
 		0, 1, 0
 	);
 
-	drawCube(0, 0, 0, 1, randomColor());
+	drawCubeC(cube);
 
 	glutSwapBuffers();
 }
@@ -94,7 +45,7 @@ void reshape(GLsizei width, GLsizei height) {
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void timer(int value) {
+void timer() {
 	glutPostRedisplay(); // Post a paint request to activate display()
 	glutTimerFunc(16, timer, 0); // Re-register timer for roughly 60 FPS
 }
@@ -106,6 +57,8 @@ int main(int argc, char** argv) {
 	glutCreateWindow("Rotating Cube");
 
 	initGL();
+
+	cube = newCube(0, 0, 0, 1, randomColor());
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
