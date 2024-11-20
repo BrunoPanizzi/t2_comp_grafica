@@ -4,7 +4,10 @@
 typedef struct {
 	float r, g, b;
 } Color;
+
 void glColor(Color c);
+Color randomColor();
+
 
 #define NewColor(r, g, b) (Color) { (float)r/255, (float)g/255, (float)g/255 }
 
@@ -39,13 +42,19 @@ void glColor(Color c);
 
 #define glify(c) c.r, c.g, c.b, 1
 
-
 #ifdef color_impl
 #include <GL/gl.h>
+#define rng_impl
+#include "rng.h"
 
 void glColor(Color c) {
 	glColor3f(c.r, c.g, c.b);
 }
+
+Color randomColor() {
+	return NewColor(randi(0, 256), randi(0, 256), randi(0, 256));
+}
+
 
 #endif // color_impl
 #endif // color_h

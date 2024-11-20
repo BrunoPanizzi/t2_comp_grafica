@@ -76,7 +76,7 @@ void display() {
 		0, 1, 0
 	);
 
-	drawCube(0, 0, 0, 1, (Color){ 0.2, 0.5, 0.4});
+	drawCube(0, 0, 0, 1, randomColor());
 
 	glutSwapBuffers();
 }
