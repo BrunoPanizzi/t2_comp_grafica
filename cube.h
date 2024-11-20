@@ -41,8 +41,10 @@ void drawCubeC(Cube *cube) {
 }
 
 void drawCube(float x, float y, float z, float size, Color c) {
+	glPushMatrix();
+
 	glTranslatef(x, y, z);
-	glScalef(size, size, size);
+	glScalef(size/2, size/2, size/2);
 
 	glBegin(GL_QUADS);
 	// Front face
@@ -87,6 +89,8 @@ void drawCube(float x, float y, float z, float size, Color c) {
 	glVertex3f(-1.0f, 1.0f, 1.0f);
 	glVertex3f(-1.0f, 1.0f, -1.0f);
 	glEnd();
+
+	glPopMatrix();
 }
 
 

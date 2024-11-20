@@ -9,7 +9,8 @@
 #define  cube_impl
 #include "cube.h"
 
-Cube *cube;
+Cube **game_floor;
+Vec3 *cam;
 
 void initGL() {
 	glEnable(GL_DEPTH_TEST);
@@ -22,15 +23,44 @@ void display() {
 	glLoadIdentity(); // Reset transformations
 
 	gluLookAt(
-		0, 8, 20, // Camera position
+		cam->x, cam->y, cam->z, // Camera position
 		0, 0, 0,  // Look at the origin
 		0, 1, 0
 	);
 
-	drawCubeC(cube);
+	for (size_t i = 0; i < 25*50; i++) {
+		drawCubeC(game_floor[i]);
+	}
 
 	glutSwapBuffers();
 }
+
+void keyboard(unsigned char key, int x, int y) {
+	switch (key) {
+		case 'w':
+			cam->z -= 1.0f; // Move forward (-z)
+			break;
+		case 's':
+			cam->z += 1.0f; // Move backward (+z)
+			break;
+		case 'a':
+			cam->x -= 1.0f; // Move left (-x)
+			break;
+		case 'd':
+			cam->x += 1.0f; // Move right (+x)
+			break;
+		case 'q':
+			cam->y -= 1.0f; // Move down (-y)
+			break;
+		case 'e':
+			cam->y += 1.0f; // Move up (+y)
+			break;
+		case 27: // ESC key
+			exit(0);
+			break;
+	}
+}
+
 
 void reshape(GLsizei width, GLsizei height) {
 	if (height == 0) height = 1; // Prevent divide by zero
@@ -58,10 +88,22 @@ int main(int argc, char** argv) {
 
 	initGL();
 
-	cube = newCube(0, 0, 0, 1, randomColor());
+	cam = malloc(sizeof(Vec3));
+	cam->y = 10;
+	cam->z = 20;
+
+	game_floor = calloc(sizeof(Cube *), 25*50);
+
+	for (int i = 0; i < 25; i++) {  // line
+		for (int j = 0; j < 50; j++) { // col
+			game_floor[i*50 + j] = newCube(j-25, 0, i-13, 1, randomColor());
+
+		}
+	}
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
 	glutTimerFunc(0, timer, 0);
 
 	glutMainLoop();
