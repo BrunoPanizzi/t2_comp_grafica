@@ -40,11 +40,8 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
 	glLoadIdentity(); // Reset transformations
 
-	gluLookAt(
-			cam->x, cam->y, cam->z, // Camera position
-			0, 0, 0,  // Look at the origin
-			0, 1, 0
-			);
+	gluLookAt(cam->x, cam->y, cam->z, // Camera position
+						0, 0, 0, 0, 1, 0);
 
 	for (size_t i = 0; i < 25*50; i++) {
 		drawCubeC(game_floor[i]);
@@ -57,6 +54,7 @@ void display() {
 	drawPig();
 
 	drawCreeper();
+
 
 	glutSwapBuffers();
 }
@@ -81,28 +79,31 @@ void keyboard(unsigned char key, int x, int y) {
 		case 'e':
 			cam->y += 1.0f; // Move up (+y)
 			break;
+
+		// pig
+		case '8':
+			pig->pos.x += cos(-pig->rotations.y/180 * M_PI);
+			pig->pos.z += sin(-pig->rotations.y/180 * M_PI);
+			break;
+		case '2':
+			pig->pos.x -= cos(-pig->rotations.y/180 * M_PI);
+			pig->pos.z -= sin(-pig->rotations.y/180 * M_PI);
+			break;
+		case '4': // rotate left
+			pig->rotations.y += 1;
+			break;
+		case '6': // rotate right
+			pig->rotations.y -= 1;
+			break;
+		case '7': // points down
+			pig->rotations.z -= 1;
+			break;
+		case '9': // points up
+			pig->rotations.z += 1;
+			break;
+
 		case 27: // ESC key
 			exit(0);
-			break;
-	}
-}
-
-void specialKeys(int key, int x, int y) {
-	switch (key) {
-		// car
-		case GLUT_KEY_UP:
-			pig->pos.x += cos(-pig->rotation/180 * M_PI);
-			pig->pos.z += sin(-pig->rotation/180 * M_PI);
-			break;
-		case GLUT_KEY_DOWN:
-			pig->pos.x -= cos(-pig->rotation/180 * M_PI);
-			pig->pos.z -= sin(-pig->rotation/180 * M_PI);
-			break;
-		case GLUT_KEY_LEFT:
-			pig->rotation += 1;
-			break;
-		case GLUT_KEY_RIGHT:
-			pig->rotation -= 1;
 			break;
 	}
 }
@@ -137,7 +138,7 @@ void initCreeper() {
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(1000, 1000);
+	glutInitWindowSize(1600, 1000);
 	glutCreateWindow("Rotating Cube");
 
 	initGL();
@@ -151,7 +152,7 @@ int main(int argc, char** argv) {
 
 	for (int i = 0; i < 25; i++) {  // line
 		for (int j = 0; j < 50; j++) { // col
-			game_floor[i*50 + j] = newCube(j-25, 0, i-12, 1, randomColor());
+			game_floor[i*50 + j] = newCube(j-24.5, 0, i-12, 1, randomColor());
 
 		}
 	}
@@ -167,6 +168,7 @@ int main(int argc, char** argv) {
 	pig = newRectV(
 		newVec3(-15, 2, 0),
 		newVec3(3, 1, 1),
+		newVec3(0, 0, 0),
 		MYWHITE
 	);
 
@@ -175,7 +177,6 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
-	glutSpecialFunc(specialKeys);
 	glutTimerFunc(0, timer, 0);
 
 	glutMainLoop();

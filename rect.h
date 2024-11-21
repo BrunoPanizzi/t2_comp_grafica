@@ -7,35 +7,34 @@
 typedef struct {
 	Vec3 pos;
 	Vec3 dimensions;
-	float rotation;
+	Vec3 rotations; // all in degrees :(
 	Color color;
 } Rect;
 
-Rect *newRectV(Vec3 pos, Vec3 dimensions, Color color);
-Rect *newRect(float x, float y, float z, float xs, float ys, float zs, Color color);
+Rect *newRectV(Vec3 pos, Vec3 dimensions, Vec3 rotations, Color color);
+// Rect *newRect(float x, float y, float z, float xs, float ys, float zs, Color color);
 
 void drawRect(float x, float y, float z,
               float xs, float ys, float zs,
-              float rotate, Color color);
+              float xr, float yr, float zr,
+              Color color);
 void drawRectR(Rect *rect);
 
 #ifdef rect_impl
 #define rect_impl
 
 #include <GL/gl.h>
+#include <GL/glut.h>
 
-Rect *newRectV(Vec3 pos, Vec3 dimensions, Color color) {
+Rect *newRectV(Vec3 pos, Vec3 dimensions, Vec3 rotations, Color color) {
 	Rect *rect = malloc(sizeof(Rect));
 
 	rect->pos = pos;
 	rect->dimensions = dimensions;
+	rect->rotations = rotations;
 	rect->color = color;
 
 	return rect;
-}
-
-Rect *newRect(float x, float y, float z, float xs, float ys, float zs, Color color) {
-	return newRectV(newVec3(x, y, z), newVec3(xs, ys, zs), color);
 }
 
 
@@ -43,59 +42,26 @@ void drawRectR(Rect *rect) {
 	drawRect(
 		rect->pos.x, rect->pos.y, rect->pos.z, 
 		rect->dimensions.x, rect->dimensions.y, rect->dimensions.z, 
-		rect->rotation, rect->color);
+		rect->rotations.x, rect->rotations.y, rect->rotations.z, 
+		rect->color);
 }
 
-void drawRect(float x, float y, float z, float xs, float ys, float zs, float rotation, Color c) {
+void drawRect(
+	float x, float y, float z, 
+	float xs, float ys, float zs, 
+	float xr, float yr, float zr, 
+	Color c
+) {
 	glPushMatrix();
 
 	glTranslatef(x, y, z);
-	glRotatef(rotation, 0, 1, 0);
+	glRotatef(xr, 1, 0, 0);
+	glRotatef(yr, 0, 1, 0);
+	glRotatef(zr, 0, 0, 1);
 	glScalef(xs, ys, zs);
 
-	glBegin(GL_QUADS);
-	// Front face
 	glColor(c);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-
-	// Back face
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-
-	// Top face
-	glColor(c);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-
-	// Bottom face
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-
-	// Right face
-	glColor(c);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-
-	// Left face
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glEnd();
+	glutSolidCube(1);
 
 	glPopMatrix();
 }

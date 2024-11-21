@@ -21,6 +21,7 @@ void drawCubeC(Cube *cube);
 #define cube_impl
 
 #include <GL/gl.h>
+#include <GL/glut.h>
 
 Cube *newCubeV(Vec3 pos, float size, Color color) {
 	Cube *cube = malloc(sizeof(Cube));
@@ -45,52 +46,12 @@ void drawCube(float x, float y, float z, float rotation, float size, Color c) {
 	glPushMatrix();
 
 	glTranslatef(x, y, z);
-	glScalef(size/2, size/2, size/2);
+	glScalef(size, size, size);
 	glRotatef(rotation, 0, 1, 0);
 
-	glBegin(GL_QUADS);
 	// Front face
 	glColor(c);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-
-	// Back face
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-
-	// Top face
-	glColor(c);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-
-	// Bottom face
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-
-	// Right face
-	glColor(c);
-	glVertex3f(1.0f, -1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, -1.0f);
-	glVertex3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 1.0f);
-
-	// Left face
-	glColor(c);
-	glVertex3f(-1.0f, -1.0f, -1.0f);
-	glVertex3f(-1.0f, -1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, 1.0f);
-	glVertex3f(-1.0f, 1.0f, -1.0f);
-	glEnd();
+	glutSolidCube(1);
 
 	glPopMatrix();
 }
