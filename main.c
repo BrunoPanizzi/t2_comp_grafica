@@ -1,3 +1,4 @@
+#include <GL/freeglut_std.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <stdio.h>
@@ -12,7 +13,7 @@
 Cube **game_floor;
 Cube **game_wall;
 Cube **creeper;
-Cube **pig;
+Cube *pig;
 Vec3 *cam;
 
 void initGL() {
@@ -21,15 +22,27 @@ void initGL() {
 	glClearColor(DARKGRAY.r, DARKGRAY.g, DARKGRAY.b, 1.0);
 }
 
+void drawCreeper() {
+	for (int i = 0; i < 22; i += 2) {
+		if (creeper[i] != NULL) {
+			drawCubeC(creeper[i]);
+		}
+	}
+}
+
+void drawPig() {
+	drawCubeC(pig);
+}
+
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
 	glLoadIdentity(); // Reset transformations
 
 	gluLookAt(
-		cam->x, cam->y, cam->z, // Camera position
-		0, 0, 0,  // Look at the origin
-		0, 1, 0
-	);
+			cam->x, cam->y, cam->z, // Camera position
+			0, 0, 0,  // Look at the origin
+			0, 1, 0
+			);
 
 	for (size_t i = 0; i < 25*50; i++) {
 		drawCubeC(game_floor[i]);
@@ -39,7 +52,7 @@ void display() {
 		drawCubeC(game_wall[i]);
 	}
 
-	drawBird();
+	drawPig();
 
 	drawCreeper();
 
@@ -72,6 +85,26 @@ void keyboard(unsigned char key, int x, int y) {
 	}
 }
 
+void specialKeys(int key, int x, int y) {
+	switch (key) {
+		// car
+		case GLUT_KEY_UP:
+			pig->pos.x += cos(-pig->rotation/180 * M_PI);
+			pig->pos.z += sin(-pig->rotation/180 * M_PI);
+			break;
+		case GLUT_KEY_DOWN:
+			pig->pos.x -= cos(-pig->rotation/180 * M_PI);
+			pig->pos.z -= sin(-pig->rotation/180 * M_PI);
+			break;
+		case GLUT_KEY_LEFT:
+			pig->rotation += 1;
+			break;
+		case GLUT_KEY_RIGHT:
+			pig->rotation -= 1;
+			break;
+	}
+}
+
 
 void reshape(GLsizei width, GLsizei height) {
 	if (height == 0) height = 1; // Prevent divide by zero
@@ -91,29 +124,12 @@ void timer() {
 	glutTimerFunc(16, timer, 0); // Re-register timer for roughly 60 FPS
 }
 
-void initBird() {
-	pig[0] = newCube(-15, 1.2, 0, 1.5, PINK);
-	pig[1] = newCube(-14.5, 2.2, 0, 0.5, PINK);
-
-}
-
-void drawBird() {
-	drawCubeC(pig[0]);
-	drawCubeC(pig[1]);
-}
-
 void initCreeper() {
+	creeper = calloc(22, sizeof(Cube *));
+
 	for(int i = 0; i < 22; i += 2) {
 		creeper[i] = newCube(10, 1, -11+i, 1, GREEN);
 	}
-}
-
-void drawCreeper() {
-    for (int i = 0; i < 22; i += 2) {
-        if (creeper[i] != NULL) {
-            drawCubeC(creeper[i]);
-        }
-    }
 }
 
 int main(int argc, char** argv) {
@@ -129,7 +145,7 @@ int main(int argc, char** argv) {
 	cam->y = 10;
 	cam->z = 50;
 
-	game_floor = calloc(sizeof(Cube *), 25*50);
+	game_floor = calloc(25*50, sizeof(Cube *));
 
 	for (int i = 0; i < 25; i++) {  // line
 		for (int j = 0; j < 50; j++) { // col
@@ -138,7 +154,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	game_wall = calloc(sizeof(Cube *), 25*15);	
+	game_wall = calloc(25*15, sizeof(Cube *));	
 
 	for (int i = 0; i < 25; i++) {  // line
 		for (int j = 0; j < 15; j++) { // col
@@ -146,17 +162,14 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	pig = calloc(sizeof(Cube *), 2);
-
-	initBird();
-
-	creeper = calloc(sizeof(Cube *), 22);
+	pig = newCube(-15, 1.2, 0, 1.5, PINK);
 
 	initCreeper();
-	
+
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(specialKeys);
 	glutTimerFunc(0, timer, 0);
 
 	glutMainLoop();
