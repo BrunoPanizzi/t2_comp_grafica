@@ -9,11 +9,13 @@
 #include "color.h"
 #define  cube_impl
 #include "cube.h"
+#define rect_impl
+#include "rect.h"
 
 Cube **game_floor;
 Cube **game_wall;
 Cube **creeper;
-Cube *pig;
+Rect *pig;
 Vec3 *cam;
 
 void initGL() {
@@ -31,7 +33,7 @@ void drawCreeper() {
 }
 
 void drawPig() {
-	drawCubeC(pig);
+	drawRectR(pig);
 }
 
 void display() {
@@ -149,7 +151,7 @@ int main(int argc, char** argv) {
 
 	for (int i = 0; i < 25; i++) {  // line
 		for (int j = 0; j < 50; j++) { // col
-			game_floor[i*50 + j] = newCube(j-25, 0, i-13, 1, randomColor());
+			game_floor[i*50 + j] = newCube(j-25, 0, i-12, 1, randomColor());
 
 		}
 	}
@@ -158,11 +160,15 @@ int main(int argc, char** argv) {
 
 	for (int i = 0; i < 25; i++) {  // line
 		for (int j = 0; j < 15; j++) { // col
-			game_wall[i*15 + j] = newCube(0, j+1, i-13, 1, randomColor());
+			game_wall[i*15 + j] = newCube(0, j+1, i-12, 1, randomColor());
 		}
 	}
 
-	pig = newCube(-15, 1.2, 0, 1.5, PINK);
+	pig = newRectV(
+		newVec3(-15, 2, 0),
+		newVec3(3, 1, 1),
+		MYWHITE
+	);
 
 	initCreeper();
 
