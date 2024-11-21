@@ -11,11 +11,13 @@
 #include "cube.h"
 #define rect_impl
 #include "rect.h"
+#define pig_impl
+#include "pig.h"
 
 Cube **game_floor;
 Cube **game_wall;
 Cube **creeper;
-Rect *pig;
+Pig *pig;
 Vec3 *cam;
 
 void initGL() {
@@ -32,16 +34,13 @@ void drawCreeper() {
 	}
 }
 
-void drawPig() {
-	drawRectR(pig);
-}
-
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
 	glLoadIdentity(); // Reset transformations
 
 	gluLookAt(cam->x, cam->y, cam->z, // Camera position
-						0, 0, 0, 0, 1, 0);
+						0, 0, 0, 
+						0, 1, 0);
 
 	for (size_t i = 0; i < 25*50; i++) {
 		drawCubeC(game_floor[i]);
@@ -51,7 +50,7 @@ void display() {
 		drawCubeC(game_wall[i]);
 	}
 
-	drawPig();
+	drawPig(pig);
 
 	drawCreeper();
 
@@ -82,24 +81,24 @@ void keyboard(unsigned char key, int x, int y) {
 
 		// pig
 		case '8':
-			pig->pos.x += cos(-pig->rotations.y/180 * M_PI);
-			pig->pos.z += sin(-pig->rotations.y/180 * M_PI);
+			pig->pos.x += cos(-pig->body_rotation/180 * M_PI);
+			pig->pos.z += sin(-pig->body_rotation/180 * M_PI);
 			break;
 		case '2':
-			pig->pos.x -= cos(-pig->rotations.y/180 * M_PI);
-			pig->pos.z -= sin(-pig->rotations.y/180 * M_PI);
+			pig->pos.x -= cos(-pig->body_rotation/180 * M_PI);
+			pig->pos.z -= sin(-pig->body_rotation/180 * M_PI);
 			break;
 		case '4': // rotate left
-			pig->rotations.y += 1;
+			pig->body_rotation += 1;
 			break;
 		case '6': // rotate right
-			pig->rotations.y -= 1;
+			pig->body_rotation -= 1;
 			break;
 		case '7': // points down
-			pig->rotations.z -= 1;
+			pig->gun_rotation -= 1;
 			break;
 		case '9': // points up
-			pig->rotations.z += 1;
+			pig->gun_rotation += 1;
 			break;
 
 		case 27: // ESC key
@@ -145,8 +144,8 @@ int main(int argc, char** argv) {
 
 	cam = malloc(sizeof(Vec3));
 	cam->x = 0;
-	cam->y = 10;
-	cam->z = 50;
+	cam->y = 15;
+	cam->z = 40;
 
 	game_floor = calloc(25*50, sizeof(Cube *));
 
@@ -165,12 +164,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	pig = newRectV(
-		newVec3(-15, 2, 0),
-		newVec3(3, 1, 1),
-		newVec3(0, 0, 0),
-		MYWHITE
-	);
+	pig = newPig(newVec3(-15, 1, 0));
 
 	initCreeper();
 
