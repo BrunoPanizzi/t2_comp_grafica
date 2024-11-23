@@ -125,7 +125,6 @@ void keyboard(unsigned char key, int x, int y) {
 			for (int i = 0; i < MAX_BOMBS; i++) {
 				if (bombBuffer[i]) continue;
 				bombBuffer[i] = shoot(pig);
-				printf("added bomb at %d\n", i);
 				break;
 			}
 			break;

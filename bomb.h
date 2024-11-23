@@ -33,9 +33,11 @@ Bomb *newBomb(Vec3 pos, Vec3 speed) {
 void drawBomb(Bomb *bomb) {
 	glPushMatrix();
 
+	glColor3f(0.95, 0.23, 0.3);
+
 	glTranslatef(bomb->pos.x, bomb->pos.y, bomb->pos.z);
 
-	glutSolidSphere(1, 16, 16);
+	glutSolidSphere(.5, 16, 16);
 
 	glPopMatrix();
 }
