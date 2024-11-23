@@ -16,11 +16,14 @@
 #define pig_impl
 #include "pig.h"
 
+
+#define MAX_BOMBS 128
+
 Cube **game_floor;
 Cube **game_wall;
 Cube **creeper;
 Pig *pig;
-Bomb *bomb;
+Bomb *bombBuffer[MAX_BOMBS];
 Vec3 *cam;
 
 void initGL() {
@@ -60,9 +63,10 @@ void display() {
 
 	drawCreeper();
 
-	if (bomb) {
-		drawBomb(bomb);
-		simulate(&bomb, 1.0 / 60.0);
+	for (int i = 0; i < MAX_BOMBS; i++) {
+		if (!bombBuffer[i]) continue;
+		drawBomb(bombBuffer[i]);
+		simulate(&bombBuffer[i], 1.0 / 60.0);
 	}
 
 
@@ -118,7 +122,12 @@ void keyboard(unsigned char key, int x, int y) {
 			pig->shotPower += 0.4;
 			break;
 		case '5': // shoot bomb
-			bomb = shoot(pig);
+			for (int i = 0; i < MAX_BOMBS; i++) {
+				if (bombBuffer[i]) continue;
+				bombBuffer[i] = shoot(pig);
+				printf("added bomb at %d\n", i);
+				break;
+			}
 			break;
 
 		case 27: // ESC key
