@@ -2,19 +2,25 @@
 #define pig_h
 
 #include "vec3.h"
+#include "bomb.h"
+
+#define PIG_BODY_SIZE newVec3(3, 1, 2)
+#define PINGOLA_SIZE  newVec3(1, 0.4, 0.4)
 
 typedef struct {
 	Vec3 pos;
-	float body_rotation;
-	float gun_rotation;
+	float bodyRotation;
+	float gunRotation;
+	float shotPower;
 } Pig;
 
 Pig *newPig(Vec3 pos);
-
 void drawPig(Pig *pig);
+Bomb *shoot(Pig *pig);
+
 
 #ifdef pig_impl
-#define pig_impl
+
 
 #include "color.h"
 
@@ -22,6 +28,7 @@ Pig *newPig(Vec3 pos) {
 	Pig *pig = malloc(sizeof(Pig));
 
 	pig->pos = pos;
+	pig->shotPower = 20;
 
 	return pig;
 }
@@ -29,11 +36,11 @@ Pig *newPig(Vec3 pos) {
 void drawPig(Pig *pig) {
 	glPushMatrix();
 
-	glTranslatef(pig->pos.x, pig->pos.y, pig->pos.z);
-	glRotatef(pig->body_rotation, 0, 1, 0);
+	translateVec3(pig->pos);
+	glRotatef(pig->bodyRotation, 0, 1, 0);
 
 	glPushMatrix();
-	glScalef(3, 1, 2);
+	scaleVec3(PIG_BODY_SIZE);
 
 	glColor(PINK);
 	glutSolidCube(1);
@@ -41,15 +48,50 @@ void drawPig(Pig *pig) {
 	glPopMatrix();
 
 	// pingola
-	glTranslatef(1.5, 0.5, 0);
+	Vec3 pingolaPos = vec3Scale(PIG_BODY_SIZE, 0.5);
+	pingolaPos.z = 0;
+	translateVec3(pingolaPos);
 
-	glRotatef(pig->gun_rotation, 0, 0, 1);
-	glScalef(1, .4, .4);
+	glRotatef(pig->gunRotation, 0, 0, 1);
+	scaleVec3(PINGOLA_SIZE);
 
 	glColor(BLACK);
 	glutSolidCube(1);
+
+	glLineWidth(3);
+	glBegin(GL_LINE_STRIP);
+
+	for (int i = 0; i < 10; i++) {
+		glVertex3f(i * 2, 0, 0);
+	}
+
+	glEnd();
 	
 	glPopMatrix();
+}
+
+Bomb *shoot(Pig *pig) {
+	Vec3 offset = vec3Scale(PIG_BODY_SIZE, 0.5);
+	offset.x *= cos(-pig->bodyRotation/180 * M_PI);
+	offset.z *= sin(-pig->bodyRotation/180 * M_PI);
+
+	Vec3 bombPos = vec3Add(pig->pos, offset);
+
+	float force = pig->shotPower;
+	float yf = sin(pig->gunRotation/180 * M_PI) * force;
+	force = cos(pig->gunRotation/180 * M_PI) * force;
+
+	float xf = cos(-pig->bodyRotation/180 * M_PI) * force;
+	float zf = sin(-pig->bodyRotation/180 * M_PI) * force;
+
+	Vec3 bombDir = newVec3(xf, yf, zf);
+
+	Bomb *bomb = newBomb(
+		bombPos,
+		bombDir
+	);
+
+	return bomb;
 }
 
 #endif // pig_impl

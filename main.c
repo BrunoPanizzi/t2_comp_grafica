@@ -11,6 +11,8 @@
 #include "cube.h"
 #define rect_impl
 #include "rect.h"
+#define bomb_impl
+#include "bomb.h"
 #define pig_impl
 #include "pig.h"
 
@@ -18,6 +20,7 @@ Cube **game_floor;
 Cube **game_wall;
 Cube **creeper;
 Pig *pig;
+Bomb *bomb;
 Vec3 *cam;
 
 void initGL() {
@@ -54,6 +57,11 @@ void display() {
 
 	drawCreeper();
 
+	if (bomb) {
+		drawBomb(bomb);
+		simulate(bomb, 1.0 / 60.0);
+	}
+
 
 	glutSwapBuffers();
 }
@@ -81,24 +89,27 @@ void keyboard(unsigned char key, int x, int y) {
 
 		// pig
 		case '8':
-			pig->pos.x += cos(-pig->body_rotation/180 * M_PI);
-			pig->pos.z += sin(-pig->body_rotation/180 * M_PI);
+			pig->pos.x += cos(-pig->bodyRotation/180 * M_PI);
+			pig->pos.z += sin(-pig->bodyRotation/180 * M_PI);
 			break;
 		case '2':
-			pig->pos.x -= cos(-pig->body_rotation/180 * M_PI);
-			pig->pos.z -= sin(-pig->body_rotation/180 * M_PI);
+			pig->pos.x -= cos(-pig->bodyRotation/180 * M_PI);
+			pig->pos.z -= sin(-pig->bodyRotation/180 * M_PI);
 			break;
 		case '4': // rotate left
-			pig->body_rotation += 1;
+			pig->bodyRotation += 2;
 			break;
 		case '6': // rotate right
-			pig->body_rotation -= 1;
+			pig->bodyRotation -= 2;
 			break;
 		case '7': // points down
-			pig->gun_rotation -= 1;
+			pig->gunRotation -= 2;
 			break;
 		case '9': // points up
-			pig->gun_rotation += 1;
+			pig->gunRotation += 2;
+			break;
+		case '5': // shoot bomb
+			bomb = shoot(pig);
 			break;
 
 		case 27: // ESC key

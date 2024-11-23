@@ -17,6 +17,9 @@ Vec3 vec3Cross(Vec3 a, Vec3 b);
 float vec3Length(Vec3 v);
 Vec3 vec3Normalize(Vec3 v);
 
+void translateVec3(Vec3 v);
+void scaleVec3(Vec3 v);
+
 
 #ifdef vec3_impl
 
@@ -27,8 +30,7 @@ Vec3 newVec3(float x, float y, float z) {
     Vec3 v;
     v.x = x;
     v.y = y;
-    v.z = z;
-    return v;
+    v.z = z; return v;
 }
 
 Vec3 vec3Add(Vec3 a, Vec3 b) {
@@ -65,6 +67,14 @@ Vec3 vec3Normalize(Vec3 v) {
         return newVec3(0, 0, 0);
     }
     return vec3Scale(v, 1.0f / len);
+}
+
+
+void translateVec3(Vec3 v) {
+	glTranslatef(v.x, v.y, v.z);
+}
+void scaleVec3(Vec3 v) {
+	glScalef(v.x, v.y, v.z);
 }
 
 #endif // vec3_impl
