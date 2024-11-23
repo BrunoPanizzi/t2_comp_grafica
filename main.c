@@ -26,6 +26,9 @@ Vec3 *cam;
 void initGL() {
 	glEnable(GL_DEPTH_TEST);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glClearColor(DARKGRAY.r, DARKGRAY.g, DARKGRAY.b, 1.0);
 }
 

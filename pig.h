@@ -59,15 +59,21 @@ void drawPig(Pig *pig) {
 	glutSolidCube(1);
 
 	glLineWidth(3);
+
+	glPopMatrix();
+
 	glBegin(GL_LINE_STRIP);
 
-	for (int i = 0; i < 10; i++) {
-		glVertex3f(i * 2, 0, 0);
+	Bomb *bomb = shoot(pig);
+
+	for (int i = 0; i < 20; i++) {
+		// fade the aim
+		glColor4f(0, 0, 0, (float)(20-(i+4))/20);
+		Vec3 pos = simulate(bomb, 0.1);
+		glVertex3f(pos.x, pos.y, pos.z);
 	}
 
 	glEnd();
-	
-	glPopMatrix();
 }
 
 Bomb *shoot(Pig *pig) {

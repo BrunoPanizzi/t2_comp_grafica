@@ -13,7 +13,7 @@ typedef struct {
 
 Bomb *newBomb(Vec3 pos, Vec3 speed);
 void drawBomb(Bomb *bomb);
-void simulate(Bomb *bomb, float dt);
+Vec3 simulate(Bomb *bomb, float dt);
 
 
 #ifdef bomb_impl
@@ -38,9 +38,11 @@ void drawBomb(Bomb *bomb) {
 	glPopMatrix();
 }
 
-void simulate(Bomb *bomb, float dt) {
-	bomb->pos = vec3Add(bomb->pos, vec3Scale(bomb->speed, dt));
+Vec3 simulate(Bomb *bomb, float dt) {
+	Vec3 pos = bomb->pos;
+	bomb->pos = vec3Add(pos, vec3Scale(bomb->speed, dt));
 	bomb->speed.y -= GRAVITY*dt;
+	return pos;
 }
 
 #endif // bomb_impl
