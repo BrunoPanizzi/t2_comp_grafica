@@ -62,7 +62,7 @@ void display() {
 
 	if (bomb) {
 		drawBomb(bomb);
-		simulate(bomb, 1.0 / 60.0);
+		simulate(&bomb, 1.0 / 60.0);
 	}
 
 
@@ -110,6 +110,12 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 		case '9': // points up
 			pig->gunRotation += 2;
+			break;
+		case '1':
+			pig->shotPower -= 0.4;
+			break;
+		case '3':
+			pig->shotPower += 0.4;
 			break;
 		case '5': // shoot bomb
 			bomb = shoot(pig);

@@ -66,12 +66,15 @@ void drawPig(Pig *pig) {
 
 	Bomb *bomb = shoot(pig);
 
-	for (int i = 0; i < 20; i++) {
+	float length = 2; // 2 second of bomb
+	for (float i = 0; i < length; i+=0.01) {
 		// fade the aim
-		glColor4f(0, 0, 0, (float)(20-(i+4))/20);
-		Vec3 pos = simulate(bomb, 0.1);
+		glColor4f(0, 0, 0, ((float)length - i)/length);
+		Vec3 pos = simulate(&bomb, 0.01);
 		glVertex3f(pos.x, pos.y, pos.z);
 	}
+
+	if (bomb) free(bomb);
 
 	glEnd();
 }

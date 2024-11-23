@@ -4,16 +4,18 @@
 #include "vec3.h"
 
 #define GRAVITY 10
+#define MAX_BALL_AGE 10
 
 
 typedef struct {
 	Vec3 pos;
 	Vec3 speed;
+	float age;
 } Bomb;
 
 Bomb *newBomb(Vec3 pos, Vec3 speed);
 void drawBomb(Bomb *bomb);
-Vec3 simulate(Bomb *bomb, float dt);
+Vec3 simulate(Bomb **bomb, float dt);
 
 
 #ifdef bomb_impl
@@ -38,10 +40,19 @@ void drawBomb(Bomb *bomb) {
 	glPopMatrix();
 }
 
-Vec3 simulate(Bomb *bomb, float dt) {
-	Vec3 pos = bomb->pos;
-	bomb->pos = vec3Add(pos, vec3Scale(bomb->speed, dt));
-	bomb->speed.y -= GRAVITY*dt;
+Vec3 simulate(Bomb **bomb, float dt) {
+	if (*bomb == NULL) {
+		return newVec3(0, 0, 0);
+	}
+	Vec3 pos = (*bomb)->pos;
+	(*bomb)->age += dt;
+	if ((*bomb)->age > MAX_BALL_AGE) {
+		free((*bomb));
+		*bomb = NULL;
+		return pos;
+	}
+	(*bomb)->pos = vec3Add(pos, vec3Scale((*bomb)->speed, dt));
+	(*bomb)->speed.y -= GRAVITY*dt;
 	return pos;
 }
 
