@@ -3,6 +3,8 @@
 #include <GL/glut.h>
 #include <stdio.h>
 
+#define texture_impl
+#include "texture.h"
 #define  vec3_impl
 #include "vec3.h"
 #define  color_impl
@@ -21,26 +23,25 @@
 
 Cube **game_floor;
 Cube **game_wall;
-Cube **creeper;
 Pig *pig;
 Bomb *bombBuffer[MAX_BOMBS];
 Vec3 *cam;
+GLuint floorTexture;
+GLuint wallTexture;
+
+GLuint initTexture() {
+	floorTexture = loadTexture("floor.png");
+	wallTexture = loadTexture("wall.png");
+}
 
 void initGL() {
 	glEnable(GL_DEPTH_TEST);
-
+	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(DARKGRAY.r, DARKGRAY.g, DARKGRAY.b, 1.0);
-}
 
-void drawCreeper() {
-	for (int i = 0; i < 22; i += 2) {
-		if (creeper[i] != NULL) {
-			drawCubeC(creeper[i]);
-		}
-	}
 }
 
 void display() {
@@ -60,8 +61,6 @@ void display() {
 	}
 
 	drawPig(pig);
-
-	drawCreeper();
 
 	for (int i = 0; i < MAX_BOMBS; i++) {
 		if (!bombBuffer[i]) continue;
@@ -135,7 +134,6 @@ void keyboard(unsigned char key, int x, int y) {
 	}
 }
 
-
 void reshape(GLsizei width, GLsizei height) {
 	if (height == 0) height = 1; // Prevent divide by zero
 	float aspect = (float)width / (float)height;
@@ -154,14 +152,6 @@ void timer() {
 	glutTimerFunc(16, timer, 0); // Re-register timer for roughly 60 FPS
 }
 
-void initCreeper() {
-	creeper = calloc(22, sizeof(Cube *));
-
-	for(int i = 0; i < 22; i += 2) {
-		creeper[i] = newCube(10, 1, -11+i, 1, GREEN);
-	}
-}
-
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -175,12 +165,14 @@ int main(int argc, char** argv) {
 	cam->y = 15;
 	cam->z = 40;
 
+	initTexture();
+
 	game_floor = calloc(25*50, sizeof(Cube *));
 
 	for (int i = 0; i < 25; i++) {  // line
 		for (int j = 0; j < 50; j++) { // col
-			game_floor[i*50 + j] = newCube(j-24.5, 0, i-12, 1, randomColor());
-
+			game_floor[i*50 + j] = newCube(j-24.5, 0, i-12, 1, WHITE);
+			game_floor[i*50 + j]->texture = floorTexture;
 		}
 	}
 
@@ -188,13 +180,12 @@ int main(int argc, char** argv) {
 
 	for (int i = 0; i < 25; i++) {  // line
 		for (int j = 0; j < 15; j++) { // col
-			game_wall[i*15 + j] = newCube(0, j+1, i-12, 1, randomColor());
+			game_wall[i*15 + j] = newCube(0, j+1, i-12, 1, WHITE);
+			game_wall[i*15 + j]->texture = wallTexture;
 		}
 	}
 
 	pig = newPig(newVec3(-15, 1, 0));
-
-	initCreeper();
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
