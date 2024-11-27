@@ -34,7 +34,7 @@ Vec3 *cam;
 GLuint floorTexture;
 GLuint wallTexture;
 
-GLuint initTexture() {
+void initTexture() {
 	floorTexture = loadTexture("floor.png");
 	wallTexture = loadTexture("wall.png");
 }
@@ -203,16 +203,19 @@ int main(int argc, char** argv) {
 	cam->y = 15;
 	cam->z = 40;
 
+	initTexture();
+
 	for (int i = 0; i < BOARD_DEPTH; i++) {  // line
 		for (int j = 0; j < BOARD_WIDTH; j++) { // col
-			game_floor[i*50 + j] = newCube(j-24.5, 0, i-12, 1, randomColor());
-
+			game_floor[i*50 + j] = newCube(j-24.5, 0, i-12, 1, WHITE);
+			game_floor[i*50 + j]->texture = floorTexture;
 		}
 	}
 
 	for (int i = 0; i < BOARD_DEPTH; i++) {  // line
 		for (int j = 0; j < WALL_HEIGHT; j++) { // col
-			game_wall[i*15 + j] = newCube(0, j+1, i-12, 1, randomColor());
+			game_wall[i*15 + j] = newCube(0, j+1, i-12, 1, WHITE);
+			game_wall[i*15 + j]->texture = wallTexture;
 		}
 	}
 
