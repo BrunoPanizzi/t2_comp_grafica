@@ -1,11 +1,13 @@
 #ifndef bomb_h
 #define bomb_h
 
+#include <stdbool.h>
 #include "vec3.h"
+#include "cube.h"
 
 #define GRAVITY 10
 #define MAX_BALL_AGE 10
-
+#define BOMB_SIZE 0.5
 
 typedef struct {
 	Vec3 pos;
@@ -17,6 +19,7 @@ Bomb *newBomb(Vec3 pos, Vec3 speed);
 void drawBomb(Bomb *bomb);
 Vec3 simulate(Bomb **bomb, float dt);
 
+bool checkCollision(Bomb *bomb, Cube *cube);
 
 #ifdef bomb_impl
 
@@ -37,7 +40,7 @@ void drawBomb(Bomb *bomb) {
 
 	glTranslatef(bomb->pos.x, bomb->pos.y, bomb->pos.z);
 
-	glutSolidSphere(.5, 16, 16);
+	glutSolidSphere(BOMB_SIZE, 16, 16);
 
 	glPopMatrix();
 }
@@ -56,6 +59,28 @@ Vec3 simulate(Bomb **bomb, float dt) {
 	(*bomb)->pos = vec3Add(pos, vec3Scale((*bomb)->speed, dt));
 	(*bomb)->speed.y -= GRAVITY*dt;
 	return pos;
+}
+
+float clamp(float t, float min, float max) {
+	if (t <= min) return min;
+	if (t >= max) return max;
+	return t;
+}
+
+bool checkCollision(Bomb *bomb, Cube *cube) {
+	Vec3 d = vec3Sub(bomb->pos, cube->pos);
+	float halfSide = cube->size / 2;
+
+	Vec3 dClamped = newVec3(
+		clamp(d.x, -halfSide, halfSide),
+		clamp(d.y, -halfSide, halfSide),
+		clamp(d.z, -halfSide, halfSide)
+	);
+
+	Vec3 closestPointOnCube = vec3Add(cube->pos, dClamped);
+	float distance = vec3Length(vec3Sub(bomb->pos, closestPointOnCube));
+
+	return distance <= BOMB_SIZE;
 }
 
 #endif // bomb_impl

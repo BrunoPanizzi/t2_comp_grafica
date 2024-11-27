@@ -17,12 +17,16 @@
 #include "pig.h"
 
 
-#define MAX_BOMBS 128
+#define MAX_BOMBS 8
 
-Cube **game_floor;
-Cube **game_wall;
+#define BOARD_DEPTH 25
+#define BOARD_WIDTH 50
+#define WALL_HEIGHT 15
+
+Cube *game_floor[BOARD_DEPTH * BOARD_WIDTH];
+Cube *game_wall[BOARD_DEPTH * WALL_HEIGHT];
 Cube **creeper;
-Pig *pig;
+Pig  *🐖;
 Bomb *bombBuffer[MAX_BOMBS];
 Vec3 *cam;
 
@@ -43,6 +47,34 @@ void drawCreeper() {
 	}
 }
 
+void verifyCollision() {
+	for (int b = 0; b < MAX_BOMBS; b++) {
+		for (int w = 0; w < WALL_HEIGHT*BOARD_DEPTH; w++) {
+			if (bombBuffer[b] == NULL) continue;
+			if (game_wall[w] == NULL) continue;
+
+			if (checkCollision(bombBuffer[b], game_wall[w])) {
+				free(game_wall[w]);
+				free(bombBuffer[b]);
+				game_wall[w] = NULL;
+				bombBuffer[b] = NULL;
+			}
+		}
+
+		for (int f = 0; f < BOARD_WIDTH*BOARD_DEPTH; f++) {
+			if (bombBuffer[b] == NULL) continue;
+			if (game_floor[f] == NULL) continue;
+
+			if (checkCollision(bombBuffer[b], game_floor[f])) {
+				free(game_floor[f]);
+				free(bombBuffer[b]);
+				game_floor[f] = NULL;
+				bombBuffer[b] = NULL;
+			}
+		}
+	}
+}
+
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers
 	glLoadIdentity(); // Reset transformations
@@ -51,24 +83,29 @@ void display() {
 						0, 0, 0, 
 						0, 1, 0);
 
-	for (size_t i = 0; i < 25*50; i++) {
-		drawCubeC(game_floor[i]);
+	for (size_t i = 0; i < BOARD_WIDTH*BOARD_DEPTH; i++) {
+		if (game_floor[i] != NULL) {
+			drawCubeC(game_floor[i]);
+		}
 	}
 
-	for (size_t i = 0; i < 25*15; i++) {
-		drawCubeC(game_wall[i]);
+	for (size_t i = 0; i < WALL_HEIGHT*BOARD_DEPTH; i++) {
+		if (game_wall[i] != NULL) {
+			drawCubeC(game_wall[i]);
+		}
 	}
 
-	drawPig(pig);
+	drawPig(🐖);
 
 	drawCreeper();
 
 	for (int i = 0; i < MAX_BOMBS; i++) {
-		if (!bombBuffer[i]) continue;
+		if (bombBuffer[i] == NULL) continue;
 		drawBomb(bombBuffer[i]);
 		simulate(&bombBuffer[i], 1.0 / 60.0);
 	}
 
+	verifyCollision();
 
 	glutSwapBuffers();
 }
@@ -96,35 +133,35 @@ void keyboard(unsigned char key, int x, int y) {
 
 		// pig
 		case '8':
-			pig->pos.x += cos(-pig->bodyRotation/180 * M_PI);
-			pig->pos.z += sin(-pig->bodyRotation/180 * M_PI);
+			🐖->pos.x += cos(-🐖->bodyRotation/180 * M_PI);
+			🐖->pos.z += sin(-🐖->bodyRotation/180 * M_PI);
 			break;
 		case '2':
-			pig->pos.x -= cos(-pig->bodyRotation/180 * M_PI);
-			pig->pos.z -= sin(-pig->bodyRotation/180 * M_PI);
+			🐖->pos.x -= cos(-🐖->bodyRotation/180 * M_PI);
+			🐖->pos.z -= sin(-🐖->bodyRotation/180 * M_PI);
 			break;
 		case '4': // rotate left
-			pig->bodyRotation += 2;
+			🐖->bodyRotation += 2;
 			break;
 		case '6': // rotate right
-			pig->bodyRotation -= 2;
+			🐖->bodyRotation -= 2;
 			break;
 		case '7': // points down
-			pig->gunRotation -= 2;
+			🐖->gunRotation -= 2;
 			break;
 		case '9': // points up
-			pig->gunRotation += 2;
+			🐖->gunRotation += 2;
 			break;
 		case '1':
-			pig->shotPower -= 0.4;
+			🐖->shotPower -= 0.4;
 			break;
 		case '3':
-			pig->shotPower += 0.4;
+			🐖->shotPower += 0.4;
 			break;
 		case '5': // shoot bomb
 			for (int i = 0; i < MAX_BOMBS; i++) {
 				if (bombBuffer[i]) continue;
-				bombBuffer[i] = shoot(pig);
+				bombBuffer[i] = shoot(🐖);
 				break;
 			}
 			break;
@@ -175,24 +212,20 @@ int main(int argc, char** argv) {
 	cam->y = 15;
 	cam->z = 40;
 
-	game_floor = calloc(25*50, sizeof(Cube *));
-
-	for (int i = 0; i < 25; i++) {  // line
-		for (int j = 0; j < 50; j++) { // col
+	for (int i = 0; i < BOARD_DEPTH; i++) {  // line
+		for (int j = 0; j < BOARD_WIDTH; j++) { // col
 			game_floor[i*50 + j] = newCube(j-24.5, 0, i-12, 1, randomColor());
 
 		}
 	}
 
-	game_wall = calloc(25*15, sizeof(Cube *));	
-
-	for (int i = 0; i < 25; i++) {  // line
-		for (int j = 0; j < 15; j++) { // col
+	for (int i = 0; i < BOARD_DEPTH; i++) {  // line
+		for (int j = 0; j < WALL_HEIGHT; j++) { // col
 			game_wall[i*15 + j] = newCube(0, j+1, i-12, 1, randomColor());
 		}
 	}
 
-	pig = newPig(newVec3(-15, 1, 0));
+	🐖 = newPig(newVec3(-15, 1, 0));
 
 	initCreeper();
 
