@@ -13,10 +13,10 @@
 #include "color.h"
 #define  cube_impl
 #include "cube.h"
-#define rect_impl
-#include "rect.h"
 #define bomb_impl
 #include "bomb.h"
+#define rect_impl
+#include "rect.h"
 #define pig_impl
 #include "pig.h"
 
@@ -26,11 +26,12 @@
 #define BOARD_DEPTH 25
 #define BOARD_WIDTH 50
 #define WALL_HEIGHT 15
+#define FRIENDS 10
+#define ENEMIES 10
 
 int score = 0;
 Cube *game_floor[BOARD_DEPTH * BOARD_WIDTH];
 Cube *game_wall[BOARD_DEPTH * WALL_HEIGHT];
-Cube **creeper;
 Pig  *🐖;
 Bomb *bombBuffer[MAX_BOMBS];
 Vec3 *cam;
@@ -38,11 +39,32 @@ GLuint floorTexture;
 GLuint wallTexture;
 Model *creeperModel;
 Model *pigModel;
+Rect *friends[FRIENDS];
+Rect *enemies[ENEMIES];
 
 
 void initModel() {
 	creeperModel = loadModel("models/creeper.tri");
 	pigModel = loadModel("models/pig.tri");
+	
+
+	for (int i = 0; i < FRIENDS; i++) {
+		friends[i] = newRectV(
+			newVec3(randf(0, (float)BOARD_WIDTH/2), 1, randf(-(float)BOARD_DEPTH/2, (float)BOARD_DEPTH/2)),
+			newVec3(1, 1, 1),
+			newVec3(0, 0, 0),
+			WHITE
+		);
+	}
+
+	for (int i = 0; i < ENEMIES; i++) {
+		enemies[i] = newRectV(
+			newVec3(randf(0, (float)BOARD_WIDTH/2), 1, randf(-(float)BOARD_DEPTH/2, (float)BOARD_DEPTH/2)),
+			newVec3(1, 1, 1),
+			newVec3(0, 0, 0),
+			WHITE
+		);
+	}
 }
 
 void initTexture() {
@@ -76,6 +98,7 @@ void verifyCollision() {
 				game_wall[w] = NULL;
 				bombBuffer[b] = NULL;
 				score += 5;
+				printf("Muro destruído!\n");
 				printScore();
 			}
 		}
@@ -90,6 +113,37 @@ void verifyCollision() {
 				game_floor[f] = NULL;
 				bombBuffer[b] = NULL;
 				score -= 5;
+				printf("Chão destruído!\n");
+				printScore();
+			}
+		}
+
+		for (int e = 0; e < ENEMIES; e++) {
+			if (bombBuffer[b] == NULL) continue;
+			if (enemies[e] == NULL) continue;
+
+			if (checkCollisionRectBomb(enemies[e], bombBuffer[b])) {
+				free(enemies[e]);
+				free(bombBuffer[b]);
+				enemies[e] = NULL;
+				bombBuffer[b] = NULL;
+				score += 10;
+				printf("Inimigo destruído!\n");
+				printScore();
+			}
+		}
+
+		for (int f = 0; f < FRIENDS; f++) {
+			if (bombBuffer[b] == NULL) continue;
+			if (friends[f] == NULL) continue;
+
+			if (checkCollisionRectBomb(friends[f], bombBuffer[b])) {
+				free(friends[f]);
+				free(bombBuffer[b]);
+				friends[f] = NULL;
+				bombBuffer[b] = NULL;
+				score -= 10;
+				printf("Amigo destruído :(\n");
 				printScore();
 			}
 		}
@@ -116,13 +170,17 @@ void display() {
 		}
 	}
 	
-	for(int i = 0; i < 10; i++) {
-		drawModel(creeperModel, i, 1, 0, 1, GREEN);
+	for(int i = 0; i < ENEMIES; i++) {
+		Rect *r = enemies[i];
+		if (r == NULL) continue;
+		drawModel(creeperModel, r->pos.x, r->pos.y, r->pos.z, 1, GREEN);
 	}
 	
-	for(int i = 0; i < 10; i++) {
-		drawModel(pigModel, i, 1, 0, 1, PINK);
-	}	
+	for(int i = 0; i < FRIENDS; i++) {
+		Rect *r = friends[i];
+		if (r == NULL) continue;
+		drawModel(pigModel, r->pos.x, r->pos.y, r->pos.z, 1, BLUE);
+	}
 
 	drawPig(🐖);
 
@@ -213,9 +271,9 @@ int main(int argc, char** argv) {
 	initGL();
 
 	cam = malloc(sizeof(Vec3));
-	cam->x = 0;
-	cam->y = 15;
-	cam->z = 40;
+	cam->x = 20;
+	cam->y = 5;
+	cam->z = 0;
 
 	initTexture();
 	initModel();

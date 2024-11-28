@@ -28,6 +28,9 @@ void drawModel(Model *model, float x, float y, float z, float scale, Color c);
 
 void freeModel(Model *model);
 
+Vertex calculateCenter(Model *model);
+Vertex calculateSize(Model *model);
+
 #ifdef model_impl
 #define model_impl
 
@@ -91,6 +94,40 @@ void freeModel(Model *model) {
         free(model->triangles);
         free(model);
     }
+}
+
+Vertex calculateCenter(Model *model) {
+    Vertex center = {0, 0, 0};
+    for (int i = 0; i < model->vertexCount; i++) {
+        center.x += model->vertices[i].x;
+        center.y += model->vertices[i].y;
+        center.z += model->vertices[i].z;
+    }
+    center.x /= model->vertexCount;
+    center.y /= model->vertexCount;
+    center.z /= model->vertexCount;
+    return center;
+}
+
+Vertex calculateSize(Model *model) {
+    float minX = model->vertices[0].x;
+    float maxX = model->vertices[0].x;
+    float minY = model->vertices[0].y;
+    float maxY = model->vertices[0].y;
+    float minZ = model->vertices[0].z;
+    float maxZ = model->vertices[0].z;
+
+    for (int i = 1; i < model->vertexCount; i++) {
+        if (model->vertices[i].x < minX) minX = model->vertices[i].x;
+        if (model->vertices[i].x > maxX) maxX = model->vertices[i].x;
+        if (model->vertices[i].y < minY) minY = model->vertices[i].y;
+        if (model->vertices[i].y > maxY) maxY = model->vertices[i].y;
+        if (model->vertices[i].z < minZ) minZ = model->vertices[i].z;
+        if (model->vertices[i].z > maxZ) maxZ = model->vertices[i].z;
+    }
+
+    Vertex size = {maxX - minX, maxY - minY, maxZ - minZ};
+    return size;
 }
 
 #endif // model_impl
