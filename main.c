@@ -115,11 +115,14 @@ void display() {
 			drawCubeC(game_wall[i]);
 		}
 	}
-
-	glPushMatrix();
-	glTranslatef(4.0, 2.0, -5.0); // Posicione a pirâmide
-	drawModel(creeperModel);
-	glPopMatrix();
+	
+	for(int i = 0; i < 10; i++) {
+		drawModel(creeperModel, i, 1, 0, 1, GREEN);
+	}
+	
+	for(int i = 0; i < 10; i++) {
+		drawModel(pigModel, i, 1, 0, 1, PINK);
+	}	
 
 	drawPig(🐖);
 
@@ -239,6 +242,7 @@ int main(int argc, char** argv) {
 	glutTimerFunc(0, timer, 0);
 
 	glutMainLoop();
+
 	freeModel(creeperModel);
 	freeModel(pigModel);
 

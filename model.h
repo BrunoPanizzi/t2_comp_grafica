@@ -4,6 +4,9 @@
 #include <GL/gl.h>
 #include <stdlib.h>
 
+#define color_impl
+#include "color.h"
+
 // Estrutura para representar um vértice
 typedef struct {
     float x, y, z; // Coordenadas do vértice
@@ -26,7 +29,7 @@ typedef struct {
 Model *loadModel(const char *filename);
 
 // Função para desenhar o modelo
-void drawModel(Model *model);
+void drawModel(Model *model, float x, float y, float z, float scale, Color c);
 
 // Função para liberar memória do modelo
 void freeModel(Model *model);
@@ -45,12 +48,12 @@ Model *loadModel(const char *filename) {
         return NULL;
     }
 
-    Model *model = malloc(sizeof(Model));
+    Model *model = calloc(sizeof(Model), 1);
     fscanf(file, "%d %d", &model->vertexCount, &model->triangleCount);
 
     // Alocar memória para os vértices e triângulos
-    model->vertices = malloc(sizeof(Vertex) * model->vertexCount);
-    model->triangles = malloc(sizeof(Triangle) * model->triangleCount);
+    model->vertices = calloc(sizeof(Vertex) * model->vertexCount, 1);
+    model->triangles = calloc(sizeof(Triangle) * model->triangleCount, 1);
 
     // Ler os vértices
     for (int i = 0; i < model->vertexCount; i++) {
@@ -67,8 +70,19 @@ Model *loadModel(const char *filename) {
 }
 
 // Implementação para desenhar o modelo
-void drawModel(Model *model) {
+void drawModel(Model *model, float x, float y, float z, float scale, Color c) {
+    glPushMatrix(); // Armazena a matriz atual de transformação
+
+    // Aplicando a escala
+    glScalef(scale, scale, scale);
+
+    // Aplicando a translação para a posição desejada
+    glTranslatef(x, y, z);
+
+    glColor(c);
+
     glBegin(GL_TRIANGLES);
+
     for (int i = 0; i < model->triangleCount; i++) {
         Triangle tri = model->triangles[i];
         Vertex v1 = model->vertices[tri.v1];
@@ -80,7 +94,10 @@ void drawModel(Model *model) {
         glVertex3f(v2.x, v2.y, v2.z);
         glVertex3f(v3.x, v3.y, v3.z);
     }
+
     glEnd();
+
+    glPopMatrix(); // Restaura a matriz de transformação anterior
 }
 
 // Implementação para liberar memória do modelo
