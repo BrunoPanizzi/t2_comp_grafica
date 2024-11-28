@@ -25,6 +25,7 @@
 #define BOARD_WIDTH 50
 #define WALL_HEIGHT 15
 
+int score = 0;
 Cube *game_floor[BOARD_DEPTH * BOARD_WIDTH];
 Cube *game_wall[BOARD_DEPTH * WALL_HEIGHT];
 Cube **creeper;
@@ -49,6 +50,10 @@ void initGL() {
 
 }
 
+void printScore() { 
+	printf("Pontuação: %d\n", score);
+}
+
 void verifyCollision() {
 	for (int b = 0; b < MAX_BOMBS; b++) {
 		for (int w = 0; w < WALL_HEIGHT*BOARD_DEPTH; w++) {
@@ -60,6 +65,8 @@ void verifyCollision() {
 				free(bombBuffer[b]);
 				game_wall[w] = NULL;
 				bombBuffer[b] = NULL;
+				score += 5;
+				printScore();
 			}
 		}
 
@@ -72,6 +79,8 @@ void verifyCollision() {
 				free(bombBuffer[b]);
 				game_floor[f] = NULL;
 				bombBuffer[b] = NULL;
+				score -= 5;
+				printScore();
 			}
 		}
 	}
