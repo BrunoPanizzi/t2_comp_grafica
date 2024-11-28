@@ -7,31 +7,25 @@
 #define color_impl
 #include "color.h"
 
-// Estrutura para representar um vértice
 typedef struct {
-    float x, y, z; // Coordenadas do vértice
+    float x, y, z;
 } Vertex;
 
-// Estrutura para representar um triângulo (face)
 typedef struct {
-    int v1, v2, v3; // Índices dos vértices que formam o triângulo
+    int v1, v2, v3;
 } Triangle;
 
-// Estrutura para armazenar o modelo 3D
 typedef struct {
-    Vertex *vertices;    // Array de vértices
-    Triangle *triangles; // Array de triângulos
-    int vertexCount;     // Número de vértices
-    int triangleCount;   // Número de triângulos
+    Vertex *vertices;
+    Triangle *triangles;
+    int vertexCount;
+    int triangleCount;
 } Model;
 
-// Função para carregar um modelo de um arquivo .tri
 Model *loadModel(const char *filename);
 
-// Função para desenhar o modelo
 void drawModel(Model *model, float x, float y, float z, float scale, Color c);
 
-// Função para liberar memória do modelo
 void freeModel(Model *model);
 
 #ifdef model_impl
@@ -40,7 +34,6 @@ void freeModel(Model *model);
 #include <stdio.h>
 #include <string.h>
 
-// Implementação para carregar o modelo
 Model *loadModel(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -51,16 +44,13 @@ Model *loadModel(const char *filename) {
     Model *model = calloc(sizeof(Model), 1);
     fscanf(file, "%d %d", &model->vertexCount, &model->triangleCount);
 
-    // Alocar memória para os vértices e triângulos
     model->vertices = calloc(sizeof(Vertex) * model->vertexCount, 1);
     model->triangles = calloc(sizeof(Triangle) * model->triangleCount, 1);
 
-    // Ler os vértices
     for (int i = 0; i < model->vertexCount; i++) {
         fscanf(file, "%f %f %f", &model->vertices[i].x, &model->vertices[i].y, &model->vertices[i].z);
     }
 
-    // Ler os triângulos
     for (int i = 0; i < model->triangleCount; i++) {
         fscanf(file, "%d %d %d", &model->triangles[i].v1, &model->triangles[i].v2, &model->triangles[i].v3);
     }
@@ -69,14 +59,10 @@ Model *loadModel(const char *filename) {
     return model;
 }
 
-// Implementação para desenhar o modelo
 void drawModel(Model *model, float x, float y, float z, float scale, Color c) {
-    glPushMatrix(); // Armazena a matriz atual de transformação
-
-    // Aplicando a escala
+    glPushMatrix();
     glScalef(scale, scale, scale);
 
-    // Aplicando a translação para a posição desejada
     glTranslatef(x, y, z);
 
     glColor(c);
@@ -89,7 +75,6 @@ void drawModel(Model *model, float x, float y, float z, float scale, Color c) {
         Vertex v2 = model->vertices[tri.v2];
         Vertex v3 = model->vertices[tri.v3];
 
-        // Desenhar o triângulo
         glVertex3f(v1.x, v1.y, v1.z);
         glVertex3f(v2.x, v2.y, v2.z);
         glVertex3f(v3.x, v3.y, v3.z);
@@ -97,10 +82,9 @@ void drawModel(Model *model, float x, float y, float z, float scale, Color c) {
 
     glEnd();
 
-    glPopMatrix(); // Restaura a matriz de transformação anterior
+    glPopMatrix();
 }
 
-// Implementação para liberar memória do modelo
 void freeModel(Model *model) {
     if (model) {
         free(model->vertices);
