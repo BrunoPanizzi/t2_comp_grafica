@@ -272,8 +272,8 @@ int main(int argc, char** argv) {
 
 	cam = malloc(sizeof(Vec3));
 	cam->x = 20;
-	cam->y = 5;
-	cam->z = 0;
+	cam->y = 10;
+	cam->z = 40;
 
 	initTexture();
 	initModel();
