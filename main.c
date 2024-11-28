@@ -5,6 +5,8 @@
 
 #define texture_impl
 #include "texture.h"
+#define model_impl
+#include "model.h"
 #define  vec3_impl
 #include "vec3.h"
 #define  color_impl
@@ -34,10 +36,18 @@ Bomb *bombBuffer[MAX_BOMBS];
 Vec3 *cam;
 GLuint floorTexture;
 GLuint wallTexture;
+Model *creeperModel;
+Model *pigModel;
+
+
+void initModel() {
+	creeperModel = loadModel("models/creeper.tri");
+	pigModel = loadModel("models/pig.tri");
+}
 
 void initTexture() {
-	floorTexture = loadTexture("floor.png");
-	wallTexture = loadTexture("wall.png");
+	floorTexture = loadTexture("textures/floor.png");
+	wallTexture = loadTexture("textures/wall.png");
 }
 
 void initGL() {
@@ -105,6 +115,11 @@ void display() {
 			drawCubeC(game_wall[i]);
 		}
 	}
+
+	glPushMatrix();
+	glTranslatef(4.0, 2.0, -5.0); // Posicione a pirâmide
+	drawModel(creeperModel);
+	glPopMatrix();
 
 	drawPig(🐖);
 
@@ -200,6 +215,7 @@ int main(int argc, char** argv) {
 	cam->z = 40;
 
 	initTexture();
+	initModel();
 
 	for (int i = 0; i < BOARD_DEPTH; i++) {  // line
 		for (int j = 0; j < BOARD_WIDTH; j++) { // col
@@ -223,5 +239,8 @@ int main(int argc, char** argv) {
 	glutTimerFunc(0, timer, 0);
 
 	glutMainLoop();
+	freeModel(creeperModel);
+	freeModel(pigModel);
+
 	return 0;
 }
