@@ -106,6 +106,7 @@ void display() {
 	}
 
 	verifyCollision();
+	simulatePig(🐖);
 
 	glutSwapBuffers();
 }
@@ -132,32 +133,18 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 
 		// pig
-		case '8':
-			🐖->pos.x += cos(-🐖->bodyRotation/180 * M_PI);
-			🐖->pos.z += sin(-🐖->bodyRotation/180 * M_PI);
-			break;
-		case '2':
-			🐖->pos.x -= cos(-🐖->bodyRotation/180 * M_PI);
-			🐖->pos.z -= sin(-🐖->bodyRotation/180 * M_PI);
-			break;
-		case '4': // rotate left
-			🐖->bodyRotation += 2;
-			break;
-		case '6': // rotate right
-			🐖->bodyRotation -= 2;
-			break;
-		case '7': // points down
-			🐖->gunRotation -= 2;
-			break;
-		case '9': // points up
-			🐖->gunRotation += 2;
-			break;
-		case '1':
-			🐖->shotPower -= 0.4;
-			break;
-		case '3':
-			🐖->shotPower += 0.4;
-			break;
+		case '8': 🐖->movPos = 1;        break;
+		case '2': 🐖->movPos = -1;       break;
+		// rotate left
+		case '4': 🐖->movRotate = 1;     break;
+		// rotate right
+		case '6': 🐖->movRotate = -1;    break;
+		// points down
+		case '7': 🐖->movGunRotate = -1; break;
+		// points up
+		case '9': 🐖->movGunRotate = 1;  break;
+		case '1': 🐖->movShot = -1;      break;
+		case '3': 🐖->movShot = 1;       break;
 		case '5': // shoot bomb
 			for (int i = 0; i < MAX_BOMBS; i++) {
 				if (bombBuffer[i]) continue;

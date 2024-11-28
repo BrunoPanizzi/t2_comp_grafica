@@ -12,10 +12,16 @@ typedef struct {
 	float bodyRotation;
 	float gunRotation;
 	float shotPower;
+
+	int movPos;
+	int movRotate;
+	int movGunRotate;
+	int movShot;
 } Pig;
 
 Pig *newPig(Vec3 pos);
 void drawPig(Pig *pig);
+void simulatePig(Pig *pig);
 Bomb *shoot(Pig *pig);
 
 
@@ -77,6 +83,35 @@ void drawPig(Pig *pig) {
 	if (bomb) free(bomb);
 
 	glEnd();
+}
+
+
+void simulatePig(Pig *🐖) {
+	if (🐖->movPos == 1) {
+		🐖->pos.x += cos(-🐖->bodyRotation/180 * M_PI)*0.1;
+		🐖->pos.z += sin(-🐖->bodyRotation/180 * M_PI)*0.1;
+	} else if (🐖->movPos == -1) {
+		🐖->pos.x -= cos(-🐖->bodyRotation/180 * M_PI);
+		🐖->pos.z -= sin(-🐖->bodyRotation/180 * M_PI);
+	}
+
+	if (🐖->movRotate ==  1) 🐖->bodyRotation += 2;
+	if (🐖->movRotate == -1) 🐖->bodyRotation -= 2;
+	
+	if (🐖->movGunRotate == 1 && 🐖->gunRotation < 150)
+		🐖->gunRotation += 2;
+	if (🐖->movGunRotate ==-1 && 🐖->gunRotation > 0) 
+		🐖->gunRotation -= 2;
+
+	if (🐖->movShot == 1 && 🐖->shotPower < 20) 
+		🐖->shotPower += 0.4;
+	if (🐖->movShot ==-1 && 🐖->shotPower > 5)  
+		🐖->shotPower -= 0.4;
+	
+	🐖->movPos = 0;
+	🐖->movRotate = 0;
+	🐖->movGunRotate = 0;
+	🐖->movShot = 0;
 }
 
 Bomb *shoot(Pig *pig) {

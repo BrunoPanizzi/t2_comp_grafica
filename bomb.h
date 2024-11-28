@@ -2,6 +2,8 @@
 #define bomb_h
 
 #include <stdbool.h>
+#include <GL/gl.h>
+
 #include "vec3.h"
 #include "cube.h"
 
